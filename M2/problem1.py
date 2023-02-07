@@ -9,7 +9,8 @@ def process_array(num, arr):
     print(arr)
     print("\nOdds output:\n")
     # TODO add necessary print statement to output only the odd values (hint, best if shown as a single line)
-
+    # Printing a String which is created using list comprehension that filters out even values and are joined with ','
+    print(', '.join([str(num) for num in arr if num%2 != 0]))    
 
 print("Problem 1")
 process_array(1, a1)

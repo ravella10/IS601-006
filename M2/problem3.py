@@ -9,7 +9,15 @@ def process_array(num, arr):
     print(arr)
     print("\nPositive Output:\n")
     # TODO add new code here to print the desired result
+    # loop to iterate through the array and update it with absolute value(+ve value) using abs() function if the element is a number or if string replace '-' with '' . 
+    for i in range(len(arr)):
 
+        #checking data type using inbuilt type functiojn
+        if type(arr[i]) == str:
+            arr[i] = arr[i].replace('-','')
+        else:
+            arr[i] = abs(arr[i])
+    print(arr)
 
 print("Problem 3")
 process_array(1, a1)
