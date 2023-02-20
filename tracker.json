@@ -1,0 +1,16 @@
+[
+    {
+        "name": "mini project",
+        "due": "2023-02-20 11:59:59",
+        "lastActivity": "2023-02-19 19:11:00.395848",
+        "description": "Complete assigment on time(don't send a mail asking for extension)",
+        "done": "2023-02-19 20:47:25.453999"
+    },
+    {
+        "name": "Test",
+        "due": "2023-02-18 12:12:12",
+        "lastActivity": "2023-02-19 20:39:13.806334",
+        "description": "testing",
+        "done": false
+    }
+]
