@@ -1,16 +1,30 @@
 [
     {
         "name": "mini project",
-        "due": "2023-02-20 11:59:59",
-        "lastActivity": "2023-02-19 19:11:00.395848",
+        "due": "2023-02-20 23:59:59",
+        "lastActivity": "2023-02-20 14:26:54.830594",
         "description": "Complete assigment on time(don't send a mail asking for extension)",
         "done": "2023-02-19 20:47:25.453999"
     },
     {
-        "name": "Test",
-        "due": "2023-02-18 12:12:12",
-        "lastActivity": "2023-02-19 20:39:13.806334",
-        "description": "testing",
-        "done": false
+        "name": "get a haircut",
+        "due": "02/28/23 10:00:00",
+        "lastActivity": "2023-02-20 14:06:03.620347",
+        "description": "Why did the procrastinator finally get a haircut? Because he couldn't put it off any longer!",
+        "done": "2023-02-20 23:05:36.187877"
+    },
+    {
+        "name": "test_added",
+        "due": "2023-02-21 21:22:22",
+        "lastActivity": "2023-02-20 22:51:00.345154",
+        "description": "done with testing",
+        "done": "2023-02-20 23:05:38.444598"
+    },
+    {
+        "name": "adding_task",
+        "due": "2023-02-23 23:23:23",
+        "lastActivity": "2023-02-20 22:33:37.905898",
+        "description": "adding_task",
+        "done": "2023-02-20 23:05:40.618244"
     }
 ]
