@@ -10,6 +10,7 @@ class MyCalcy:
 
     @staticmethod
     def _is_float(val):
+        #id - pr457, date - 2/27/23
         try:
             float(val)
             return True
@@ -18,6 +19,7 @@ class MyCalcy:
 
     @staticmethod
     def _is_int(val):
+        #id - pr457, date - 2/27/23
         try:
             int(val)
             return True
@@ -26,6 +28,7 @@ class MyCalcy:
 
     @staticmethod
     def _as_number(val):
+        #id - pr457, date - 2/27/23
         if MyCalcy._is_int(val):
             return int(val)
         elif MyCalcy._is_float(val):

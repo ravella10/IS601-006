@@ -118,7 +118,7 @@ def test_subtraction_num(num_op_num_data):
             c.substraction(d['a'],d['b']) 
             assert math.isclose(MyCalcy._as_number(c.ans),MyCalcy._as_number(d['-']))
 
-def test_substraction_ans(ans_op_num_data):
+def test_subtraction_ans(ans_op_num_data):
     #id - pr457, date - 2/27/23
     #using fixtures to provide the data for testing ans-num
     #math.isclose is used for the comparision of possible float values
