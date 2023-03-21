@@ -46,11 +46,11 @@ class BurgerMachine:
     MAX_TOPPINGS = 3
 
 
-    # buns = [Bun(name="No Bun", cost=0), Bun(name="White Burger Bun", cost=1), Bun("Wheat Burger Bun", cost=1.25),Bun("Lettuce Wrap", cost=1.5)]
-    # patties = [Patty(name="Turkey", quantity=10, cost=1), Patty(name="Veggie", quantity=10, cost=1), Patty(name="Beef", quantity=10, cost=1)]
-    # toppings = [Topping(name="Lettuce", quantity=10, cost=.25), Topping(name="Tomato", quantity=10, cost=.25), Topping(name="Pickles", quantity=10, cost=.25), \
-    # Topping(name="Cheese", quantity=10, cost=.25), Topping(name="Ketchup", quantity=10, cost=.25),
-    #  Topping(name="Mayo", quantity=10, cost=.25), Topping(name="Mustard", quantity=10, cost=.25),Topping(name="BBQ", quantity=10, cost=.25)] 
+    buns = [Bun(name="No Bun", cost=0), Bun(name="White Burger Bun", cost=1), Bun("Wheat Burger Bun", cost=1.25),Bun("Lettuce Wrap", cost=1.5)]
+    patties = [Patty(name="Turkey", quantity=10, cost=1), Patty(name="Veggie", quantity=10, cost=1), Patty(name="Beef", quantity=10, cost=1)]
+    toppings = [Topping(name="Lettuce", quantity=10, cost=.25), Topping(name="Tomato", quantity=10, cost=.25), Topping(name="Pickles", quantity=10, cost=.25), \
+    Topping(name="Cheese", quantity=10, cost=.25), Topping(name="Ketchup", quantity=10, cost=.25),
+    Topping(name="Mayo", quantity=10, cost=.25), Topping(name="Mustard", quantity=10, cost=.25),Topping(name="BBQ", quantity=10, cost=.25)] 
 
 
     # variables
@@ -64,12 +64,12 @@ class BurgerMachine:
     currently_selecting = STAGE.Bun
 
 
-    def __init__(self):
-        self.patties = [Patty(name="Turkey", quantity=10, cost=1), Patty(name="Veggie", quantity=10, cost=1), Patty(name="Beef", quantity=10, cost=1)]
-        self.buns = [Bun(name="No Bun", cost=0), Bun(name="White Burger Bun", cost=1), Bun("Wheat Burger Bun", cost=1.25),Bun("Lettuce Wrap", cost=1.5)]
-        self.toppings = [Topping(name="Lettuce", quantity=10, cost=.25), Topping(name="Tomato", quantity=10, cost=.25), Topping(name="Pickles", quantity=10, cost=.25), \
-        Topping(name="Cheese", quantity=10, cost=.25), Topping(name="Ketchup", quantity=10, cost=.25),
-        Topping(name="Mayo", quantity=10, cost=.25), Topping(name="Mustard", quantity=10, cost=.25),Topping(name="BBQ", quantity=10, cost=.25)]
+    # def __init__(self):
+    #     self.patties = [Patty(name="Turkey", quantity=10, cost=1), Patty(name="Veggie", quantity=10, cost=1), Patty(name="Beef", quantity=10, cost=1)]
+    #     self.buns = [Bun(name="No Bun", cost=0), Bun(name="White Burger Bun", cost=1), Bun("Wheat Burger Bun", cost=1.25),Bun("Lettuce Wrap", cost=1.5)]
+    #     self.toppings = [Topping(name="Lettuce", quantity=10, cost=.25), Topping(name="Tomato", quantity=10, cost=.25), Topping(name="Pickles", quantity=10, cost=.25), \
+    #     Topping(name="Cheese", quantity=10, cost=.25), Topping(name="Ketchup", quantity=10, cost=.25),
+    #     Topping(name="Mayo", quantity=10, cost=.25), Topping(name="Mustard", quantity=10, cost=.25),Topping(name="BBQ", quantity=10, cost=.25)]
 
     # rules
     # 1 - bun must be chosen first
@@ -163,10 +163,11 @@ class BurgerMachine:
 
     def calculate_cost(self):
         # TODO add the calculation expression/logic for the inprogress_burger
+        # UCID - pr457, date - 03/20/2023
         cost = 0
         for usable in self.inprogress_burger:
             cost += usable.cost
-        return cost
+        return float('{:,.2f}'.format(cost))
 
     def run(self):
         try:
@@ -184,10 +185,10 @@ class BurgerMachine:
                 self.print_current_burger()
             elif self.currently_selecting == STAGE.Pay:
                 expected = self.calculate_cost()
-                expected = "{:,}".format(expected)
+                # UCID - pr457, date - 03/20/2023
                 # show expected value as currency format
                 # require total to be entered as currency format
-                total = input(f"Your total is $ {expected}, please enter the exact value.\n")
+                total = input(f"Your total is $ {expected}, please enter the exact value in displayed currency format.\n")
                 self.handle_pay(expected, total)
                 
                 choice = input("What would you like to do? (order or quit)\n")
@@ -202,32 +203,37 @@ class BurgerMachine:
             sys.exit()
         # handle OutOfStockException
         except OutOfStockException:
+            # UCID - pr457, date - 03/20/2023
             # show an appropriate message of what stage/category was out of stock
-            print(f"{self.inprogress_burger[-1]} is out of stock at stage {self.currently_selecting.name}")
+            print(f"{self.currently_selecting.name} : {self.inprogress_burger[-1]} is out of stock. Please try selecting something else")
         # handle NeedsCleaningException
         except NeedsCleaningException:
+            # UCID - pr457, date - 03/20/2023
             # prompt user to type "clean" to trigger clean_machine()
             # any other input is ignored
             # print a message whether or not the machine was cleaned
             prompt = input("Please clean the machine by entering 'clean'")
             if prompt.lower() == "clean":
                 self.clean_machine()
-                print("Machine was cleaned. Your'e good to go")
+                print("Machine was cleaned")
             else:
-                print("Machine was not cleaned.No food!! Hygiene comes first!")
+                print("Machine was not cleaned")
         # handle InvalidChoiceException
         except InvalidChoiceException:
+            # UCID - pr457, date - 03/20/2023
             # show an appropriate message of what stage/category was the invalid choice was in
-            print(f"Invalid choice of {self.currently_selecting.name}")
+            print(f"Invalid choice of {self.currently_selecting.name}. Please choose one from displayed options")
         # handle ExceededRemainingChoicesException 
         except ExceededRemainingChoicesException:
+            # UCID - pr457, date - 03/20/2023
             # show an appropriate message of which stage/category was exceeded
             # move to the next stage/category
             print(f"Exceeded 3 choice limit of {self.currently_selecting.name}s. Moving on to next Stage")
             self.currently_selecting = STAGE(self.currently_selecting.value + 1)
         # handle InvalidPaymentException
         except InvalidPaymentException:
-            print("Please enter exact value! NO CHANGE!!")
+            # UCID - pr457, date - 03/20/2023
+            print("Please enter exact value in displayed currency format")
             # show an appropriate message
         except:
             # this is a default catch all, follow the steps above
