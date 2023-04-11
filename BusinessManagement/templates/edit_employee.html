@@ -2,6 +2,7 @@
 {% block title %}Edit Employee{% endblock %}
 {% block content %}
 {% from "company_dropdown.html" import company_dropdown %}
+{% from "_formhelpers.html" import render_field %}
 
 <div class="container-fluid">
     <div class="h1">Edit Employee</div>
@@ -14,8 +15,12 @@
             email (required)
             and prefill the fields with loaded employee data
             #}
+            {{ form.hidden_tag() }}
+                {{render_field(form.first_name)}}
+                {{render_field(form.last_name)}}
+                {{render_field(form.email)}}
             {# use the below for company selection #}
-            {{ company_dropdown(employee.company) }}
+            {{ company_dropdown(company_id) }}
             <input type="submit" class="btn btn-primary" value="Save Employee" />
         </form>
     </div>

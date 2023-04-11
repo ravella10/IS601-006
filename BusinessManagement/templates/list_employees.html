@@ -18,11 +18,31 @@
         #}
 
         <div class="row">
+            <div class="col-12" style="max-width: 18%;">
+                <label class="form-label visually-hidden" for="fn">First Name</label>
+                <input type="text" name="fn" class="form-control" id="fn" placeholder="First Name"
+                    value="{{request.args.get('fn') or ''}}">
+            </div>
+            <div class="col-12" style="max-width: 18%;">
+                <label class="form-label visually-hidden" for="ln">Last Name</label>
+                <input type="text" name="ln" class="form-control" id="ln" placeholder="Last Name"
+                    value="{{request.args.get('ln') or ''}}">
+            </div>
+            <div class="col-12" style="max-width: 18%;">
+                <label class="form-label visually-hidden" for="email">email</label>
+                <input type="text" name="email" class="form-control" id="email" placeholder="Email"
+                    value="{{request.args.get('email') or ''}}">
+            </div>
             <div class="col">
                 <label class="visually-hidden" for="company">Company</label>
                 {{company_dropdown(request.args.get("company"))}}
             </div>
-            {{sort_filter(cols=[...])}}
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col-12" style="max-width: 18%;">
+                <label class="form-label visually-hidden" for="limit">Limit</label>
+                <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" min="0" max="100"
+                    value="{{request.args.get('limit') or 10}}">
+            </div>
             <div class="col">
                 <input type="submit" class="btn btn-primary" value="Filter" />
             </div>
@@ -37,7 +57,9 @@
             <tr class="text-capitalize">
                 {# generate th tags for each column to display #}
                 {# IMPORTANT use table column names as the headings, replace _ with space via filter #}
-
+                {% for r in rows[0].keys() %}
+                    <th>{{r | replace("_", " ")}}</th>
+                {% endfor %}
                 <th>Actions</th>
             </tr>
         </thead>
@@ -47,7 +69,16 @@
             an edit button that passes the employee id to employee edit
             a delete button that passes the employee id and the request args to the employee delete route
             #}
-
+            {% for r in rows %}
+            <tr>
+                {% for v in r.values() %}
+                    <td>{{v}}</td>
+                {% endfor %}
+                <td><a href="{{url_for('employee.edit', id=r.get('id'))}}">Edit</a>
+                    <a href="{{url_for('employee.delete', id=r.get('id'), **request.args)}}">delete</a>
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
         {% else %}
         <tbody>

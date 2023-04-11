@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Add Company{% endblock %}
 {% block content %}
+{% from "_formhelpers.html" import render_field %}
 {% from "country_state_selector.html" import country_state_selector %}
 
 <div class="container-fluid">
@@ -17,9 +18,14 @@
             website (optional)
             if a validation error occurs, the inserted form data should persist
             #}
-
+            {{ form.hidden_tag() }}
+            {{render_field(form.name)}}
+            {{render_field(form.address)}}
+            {{render_field(form.city)}}
             {# use this for country/state selection #}
             {{country_state_selector()}}
+            {{render_field(form.zip)}}
+            {{render_field(form.website)}}
             <input type="submit" class="btn btn-primary" value="Save Company" />
         </form>
     </div>

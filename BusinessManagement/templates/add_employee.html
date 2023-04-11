@@ -2,6 +2,7 @@
 {% block title %}Add Employee{% endblock %}
 {% block content %}
 {% from "company_dropdown.html" import company_dropdown %}
+{% from "_formhelpers.html" import render_field %}
 <div class="container-fluid">
     <div class="h1">Add Employee</div>
     <div>
@@ -13,7 +14,10 @@
             email (required)
             if a validation error occurs, the inserted form data should persist
             #}
-
+            {{ form.hidden_tag() }}
+                {{render_field(form.first_name)}}
+                {{render_field(form.last_name)}}
+                {{render_field(form.email)}}
             {# use the below for company selection #}
             {{ company_dropdown() }}
             <input type="submit" class="btn btn-primary" value="Save Employee" />
