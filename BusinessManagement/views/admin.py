@@ -7,6 +7,7 @@ import os
 import csv
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
+
 @admin.route("/import", methods=["GET","POST"])
 def importCSV():
     if request.method == "POST":
