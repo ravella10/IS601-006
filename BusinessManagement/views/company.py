@@ -4,6 +4,7 @@ from werkzeug.datastructures import MultiDict
 from views.forms import CompanyForm
 import pycountry
 
+
 company = Blueprint('company', __name__, url_prefix='/company')
 
 @company.route("/search", methods=["GET"])
@@ -256,6 +257,7 @@ def delete():
     # TODO delete-4 ensure a flash message shows for successful delete
     # TODO delete-5 for all employees assigned to this company set their company_id to None/null
     # TODO delete-6 if id is missing, flash necessary message and redirect to search
+    #pr457 date - 3/11/2023
     id = request.args.get("id")
     args = {**request.args}
     if id:

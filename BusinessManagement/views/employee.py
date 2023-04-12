@@ -91,7 +91,7 @@ def add():
         # TODO add-3 last_name is required (flash proper error message)
         if last_name == '' or last_name == None:
             flash("last name is required", "danger")
-            return redirect(url_for('add'))
+            return redirect(url_for('employee.add'))
         # TODO add-4 company (may be None)
         if company_id == '':
             company_id = None
