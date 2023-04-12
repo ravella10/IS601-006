@@ -7,7 +7,6 @@ import json
 employee = Blueprint('employee', __name__, url_prefix='/employee')
 
 
-
 @employee.route("/search", methods=["GET"])
 def search():
     rows = []
