@@ -28,7 +28,7 @@
                 <input type="text" name="ln" class="form-control" id="ln" placeholder="Last Name"
                     value="{{request.args.get('ln') or ''}}">
             </div>
-            <div class="col-12" style="max-width: 20%;">
+            <div class="col-12" style="max-width: 10%;">
                 <label class="form-label visually-hidden" for="email">email</label>
                 <input type="text" name="email" class="form-control" id="email" placeholder="Email"
                     value="{{request.args.get('email') or ''}}">
@@ -38,7 +38,7 @@
                 {{company_dropdown(request.args.get("company"))}}
             </div>
             {{sort_filter(cols=allowed_columns)}}
-            <div class="col-12" style="max-width: 20%;">
+            <div class="col-12" style="max-width: 10%;">
                 <label class="form-label visually-hidden" for="limit">Limit</label>
                 <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" min="0" max="100"
                     value="{{request.args.get('limit') or 10}}">
