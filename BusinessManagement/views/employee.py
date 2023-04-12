@@ -3,6 +3,7 @@ from sql.db import DB
 from views.forms import EmployeeForm
 import re
 from werkzeug.datastructures import MultiDict
+import json
 employee = Blueprint('employee', __name__, url_prefix='/employee')
 
 
@@ -85,11 +86,11 @@ def add():
         # TODO add-2 first_name is required (flash proper error message)
         if first_name == '' or first_name == None:
             flash("first name is required", "danger")
-            return redirect("add")
+            return redirect(url_for("employee.add"))
         # TODO add-3 last_name is required (flash proper error message)
         if last_name == '' or last_name == None:
             flash("last name is required", "danger")
-            return redirect("add")
+            return redirect(url_for('add'))
         # TODO add-4 company (may be None)
         if company_id == '':
             company_id = None
