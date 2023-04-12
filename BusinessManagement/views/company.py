@@ -260,6 +260,7 @@ def delete():
     args = {**request.args}
     if id:
         try:
+            result = DB.insertMany("UPDATE IS601_MP3_Employees SET company_id = NULL WHERE company_id = %s",id)
             result = DB.delete("DELETE FROM IS601_MP3_Companies WHERE id = %s", id)
             if result.status:
                 flash("Deleted Company record", "success")

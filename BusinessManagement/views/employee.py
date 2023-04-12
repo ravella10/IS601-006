@@ -7,6 +7,7 @@ import json
 employee = Blueprint('employee', __name__, url_prefix='/employee')
 
 
+
 @employee.route("/search", methods=["GET"])
 def search():
     rows = []
@@ -196,9 +197,14 @@ def delete():
     # TODO delete-3 pass all argument except id to this route
     # TODO delete-4 ensure a flash message shows for successful delete
     # TODO delete-5 if id is missing, flash necessary message and redirect to search
+    #pr457 date - 3/11/2023
     id = request.args.get("id")
     args = {**request.args}
-    if id:
+    
+    if not id:
+        flash("Id is missing","danger")
+        redirect(url_for("employee.search"))
+    else:
         try:
             result = DB.delete("DELETE FROM IS601_MP3_Employees WHERE id = %s", id)
             if result.status:
