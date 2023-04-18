@@ -1,4 +1,5 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for
+from flask_login import login_user, login_required, logout_user, current_user
 from sql.db import DB
 from roles.forms import RoleForm
 from werkzeug.datastructures import MultiDict
@@ -9,6 +10,7 @@ roles = Blueprint('roles', __name__, url_prefix='/roles',template_folder='templa
 # https://stackoverflow.com/a/20069821 (for http_exception)
 
 @roles.route("/add", methods=["GET","POST"])
+@login_required
 @admin_permission.require(http_exception=403)
 def add():
     form = RoleForm()
@@ -23,6 +25,7 @@ def add():
     return render_template("role_form.html", form=form, type="Create")
 
 @roles.route("/edit", methods=["GET", "POST"])
+@login_required
 @admin_permission.require(http_exception=403)
 def edit():
     form = RoleForm()
@@ -50,6 +53,7 @@ def edit():
     return render_template("role_form.html", form=form, type="Edit")
 
 @roles.route("/list", methods=["GET"])
+@login_required
 @admin_permission.require(http_exception=403)
 def list():
     rows = [] 
@@ -63,6 +67,7 @@ def list():
     return render_template("roles_list.html", rows=rows)
 
 @roles.route("/delete", methods=["GET"])
+@login_required
 @admin_permission.require(http_exception=403)
 def delete():
     id = request.args.get("id")
@@ -87,6 +92,7 @@ def delete():
     return redirect(url_for("roles.list", **args))
 
 @roles.route("/assign", methods=["GET", "POST"])
+@login_required
 @admin_permission.require(http_exception=403)
 def assign():
     users = []
@@ -112,6 +118,7 @@ def assign():
     return render_template("assign.html", users=users, roles=roles)
 
 @roles.route("/apply", methods=["POST"])
+@login_required
 @admin_permission.require(http_exception=403)
 def apply():
     # https://stackoverflow.com/a/24808706
