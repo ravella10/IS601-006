@@ -47,13 +47,13 @@ def register():
                         ON DUPLICATE KEY UPDATE user_id=%(id)s, league_id = %(league_id)s
             """, {'id':user_id,'league_id':league_id}
                 )
-                #pr457 date - 3/11/2023
+                #pr457 date - 4/26/2023
                 if result.status:
                     flash("Added to Watchlist", "success")
                 else:
                     flash("not added","danger")
             except Exception as e:
-                #pr457 date - 3/11/2023
+                #pr457 date - 4/26/2023
                 flash(f" Following exception occured while adding the Watchlist record: {str(e)}", "danger")
         else:
             try:
@@ -131,7 +131,7 @@ def view():
             """+query, {'id':user_id})
                 team_list = result.rows
                 #pr457 date - 3/11/2023
-                if not result.status:
+                if not result.rows:
                     flash("Couldn't find any Watchlist records", "danger")
             except Exception as e:
                 #pr457 date - 3/11/2023
@@ -206,6 +206,36 @@ def edit():
             except Exception as e:
                 flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
             return redirect(url_for("watchlist.view", apply_where=apply_where))
+        
+@watchlist.route("/view_one", methods=["GET", "POST"])
+def view_one():
+    result = ''
+    id = int(request.form.get("name",None))
+    user_id = json.loads(session['user'])['id']
+    type_of = request.form.get("type",None)
+   
+    apply_where = '' if type_of=='league' else type_of
+    if not id:
+        flash('Id is missing','danger')
+        redirect(url_for("watchlist.view",apply_where=apply_where))
+    else:
+        if type_of == 'league':
+            try:
+                result = DB.selectAll("SELECT * FROM IS601_Leagues WHERE id = %s", id)
+                print(result.rows)
+                if result.status:
+                    flash("Fetched League from watchlist","success")
+            except Exception as e:
+                    flash(f" Following exception occured while deleting the League from watchlist: {str(e)}", "danger")
+        else:
+             try:
+                result = DB.selectAll("SELECT * FROM IS601_User WHERE id = %s", id)
+                if result.status:
+                    flash("Fetched Team from watchlist","success")
+             except Exception as e:
+                    flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
+    return render_template("view.html",result_list = result.rows)
+
             
 
 @current_app.template_global()
