@@ -1,0 +1,199 @@
+{% from "sort_filter.html" import sort_filter%}
+{% macro league_dropdown(val="",ini="") %}
+{# TODO DO NOT EDIT #}
+<select title="drop" class="form-select mb-3" name="name" value="{{ini or ''}}">
+{% if val=='league'%}
+{% set options = get_leagues()%}
+{%else%}
+{% set options = get_teams()%}
+{%endif%}
+<option value="">No {{val}}</option>
+{% for c in options %}
+<option {{'selected' if ini|string==c['id']|string}} value="{{c['id']}}">{{c['name']}}</option>
+{% endfor %}
+</select>
+{% endmacro %}
+
+{% extends "layout.html" %}
+{% block head %}
+{{super()}}
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+ <!--Bootstrap CSS-->
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+<!--Fontawesome-->
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+
+
+{% endblock %}
+{% block title %}Watchlist{% endblock %}
+{% block content %}
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-link active" id="nav-league-tab" data-bs-toggle="tab" href="#nav-league" role="tab" aria-controls="nav-league" aria-selected="true">Leagues</a>
+      <a class="nav-link" id="nav-team-tab" data-bs-toggle="tab" href="#nav-team" role="tab" aria-controls="nav-team" aria-selected="false">Teams</a>
+    </div>
+  </nav>
+
+<!-- Tab panes -->
+<div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade {{'show active' if not apply_where}}" id="nav-league" role="tabpanel" aria-labelledby="nav-league-tab">
+    <div class="container-fluid">
+    <!--form controls-->
+    <form method="GET"> 
+        <div class="row">
+            <div class="col-12" style="max-width: 10%;">
+                <label class="form-label visually-hidden" for="league_name">League Name</label>
+                <input type="text" name="league_name" class="form-control" id="fn" placeholder="League Name"
+                    value="{{request.args.get('league_name') or ''}}">
+                </div>
+
+                <div class="col-12" style="max-width: 10%;">
+                    <label class="form-label visually-hidden" for="country_name">Country</label>
+                    <input type="text" name="country_name" class="form-control" id="ln" placeholder="Country"
+                        value="{{request.args.get('country_name') or ''}}">
+                </div>
+                <input type="hidden" id="postId" name="apply_where" value='' />
+
+                <div class="col">
+                    <input type="submit" class="btn btn-primary" value="Filter" />
+                </div>
+
+                </div>
+                
+
+    </form>
+ 
+    <!--Leagues-->
+
+    <div class="container">
+        <div class="row">
+        <div class="col-12">
+            <table class="table table-image">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Country</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in league_list%}
+                <tr>
+                    <td class="w-25">
+                        <img src = "{{c['logo']}}" alt="{{c['name']+' logo'}}">
+                    </td>
+                    <td><a href="{{url_for('watchlist.getstandings',name=c['id'])}}">{{c['name']}}</a></td>
+                    <td>{{c['country']}}</td>
+                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
+                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <input type="hidden" id="postId" name="type" value="league" /></form></td>
+                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
+                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <input type="hidden" id="postId" name="type" value="league" /></form></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>   
+        </div>
+        </div>
+    </div>
+
+
+  
+   
+    </div>
+  </div>
+  <div class="tab-pane fade {{'show active' if apply_where}}" id="nav-team" role="tabpanel" aria-labelledby="nav-team-tab">
+    <div class="container-fluid">
+    <form method="GET"> 
+        
+        <div class="row">
+            <div class="col-12" style="max-width: 10%;">
+                <label class="form-label visually-hidden" for="teamn_name">Team Name</label>
+                <input type="text" name="team_name" class="form-control" id="fn" placeholder="Team Name"
+                    value="{{request.args.get('team_name') or ''}}">
+                </div>
+
+                <div class="col-12" style="max-width: 10%;">
+                    <label class="form-label visually-hidden" for="country_name">Country</label>
+                    <input type="text" name="country_name" class="form-control" id="ln" placeholder="Country"
+                        value="{{request.args.get('country_name') or ''}}">
+                </div>
+
+                <div class="col">
+                    <label class="visually-hidden" for="leagues">League</label>
+                    {{league_dropdown(val='league',ini=request.args.get("name"))}}
+                </div>
+
+                {{sort_filter(cols=allowed_columns)}}
+                <div class="col-12" style="max-width: 10%;">
+                    <label class="form-label visually-hidden" for="limit">Limit</label>
+                    <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" min="0" max="100"
+                        value="{{request.args.get('limit') or 10}}">
+                </div>
+
+                <div class="col">
+                    <input type="submit" class="btn btn-primary" value="Filter" />
+                </div>
+                </div>
+                <input type="hidden" id="postId" name="apply_where" value="team" />
+    </form>
+
+
+
+         <!--Teams-->
+
+       <div class="container">
+        <div class="row">
+        <div class="col-12">
+            <table class="table table-image">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Country</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in team_list%}
+                <tr>
+                    <td class="w-25">
+                        <img src = "{{c['logo']}}" alt="{{c['name']+' logo'}}">
+                    </td>
+                    <td>{{c['name']}}</td>
+                    <td>{{c['country']}}</td>
+                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
+                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <input type="hidden" id="postId" name="type" value="team" /></form></td>
+                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
+                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <input type="hidden" id="postId" name="type" value="team" /></form></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>   
+        </div>
+        </div>
+    </div>
+    
+
+
+
+
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+{% endblock %}
+
+
+
+
