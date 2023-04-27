@@ -306,7 +306,7 @@ def view_one():
                     flash("Fetched League from watchlist","success")
                 else:
                     flash("Invalid id","danger")
-                    return redirect(url_for("watchlist.view",apply_where=apply_where))
+                    return redirect(url_for("watchlist.view",apply_where=apply_where,lid=id))
             except Exception as e:
                     flash(f"Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
         else:
@@ -316,7 +316,7 @@ def view_one():
                     flash("Fetched Team from watchlist","success")
                 else:
                     flash("Invalid id","danger")
-                    return redirect(url_for("watchlist.view",apply_where=apply_where))
+                    return redirect(url_for("watchlist.view",apply_where=apply_where,tid=id))
              except Exception as e:
                     flash(f"Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
     return render_template("view.html",result_list = result.rows)
