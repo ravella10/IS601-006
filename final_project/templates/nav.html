@@ -26,9 +26,16 @@
                 <!-- samples nav -->
                 {% set samples = [
                 ("sample.add", "Add"),
-                ("sample.list", "List"),
+
+                ("sample.list", "List")
                 ] %}
-                {{dropdown_nav("Teams", samples)}}
+                {% set samples_1 = [
+                    ("watchlist.register", "Add"),
+                    ("watchlist.view", "List")
+                    ] %}
+                
+                {{dropdown_nav("Watchlist", samples_1)}}
+
                 <!-- roles nav (requires admin )-->
                 {% if current_user.has_role("Admin") %}
                 {% set roles = [

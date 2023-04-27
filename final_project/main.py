@@ -1,7 +1,9 @@
 # from https://towardsdatascience.com/deploy-to-google-cloud-run-using-github-actions-590ecf957af0
 import os
 import sys
-from flask import Flask, session, render_template
+import http.client
+import json
+from flask import Flask, session, render_template, flash
 from dotenv import load_dotenv
 load_dotenv()
 import flask_login
@@ -45,6 +47,10 @@ def create_app(config_filename=''):
         from roles.roles import roles
         app.register_blueprint(roles)
 
+        from user.watchlist import watchlist
+        app.register_blueprint(watchlist)
+
+
         # load the extension
         principals = Principal(app) # must be defined/initialized for identity to work (flask_principal)
         @login_manager.user_loader
@@ -69,6 +75,8 @@ def create_app(config_filename=''):
             except Exception as e:
                 print(e)
             return None
+    
+
 
         @identity_loaded.connect_via(app)
         def on_identity_loaded(sender, identity):
