@@ -157,13 +157,34 @@ def view():
 #pr457 date - 04/25/2023
 @watchlist.route("/delete", methods=["GET","POST"])
 def delete():
- 
     country_name = request.args.get("country_name",None)
     print(country_name)
     id = request.args.get("id",None)
     user_id = json.loads(session['user'])['id']
     type_of = request.args.get("type",None)
     apply_where = '' if type_of=='league' else type_of
+    try:
+        if type_of == 'league':
+            result = DB.selectAll("""
+                Select * FROM IS601_UserLeagues WHERE user_id = %s and league_id = %s
+                """,user_id, id)
+            print(result.rows)
+            if not result.rows:
+                flash("Invalid ID! Unable to Delete League from watchlist","danger")
+                return redirect(url_for("watchlist.view",apply_where=apply_where,did=id))
+        else:
+            result = DB.selectAll("""
+                Select * FROM IS601_UserTeams WHERE user_id = %s and team_id = %s
+                """, user_id, id )
+            if not result.rows:
+                flash("Invalid ID! Unable to Delete League from watchlist","danger")
+                return redirect(url_for("watchlist.view",apply_where=apply_where,did=id))
+    except Exception as e:
+        if 'Duplicate' in str(e):
+            flash('Duplicate record','danger')
+        else:
+            flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
+    
     if not id:
         flash('Id is missing','danger')
         redirect(url_for("watchlist.view",apply_where=apply_where))
@@ -182,7 +203,7 @@ def delete():
                     flash("Deleted Team from watchlist","success")
              except Exception as e:
                     flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
-    return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name,id=id))
+    return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name,did=id))
 
 #pr457 date - 04/25/2023
 @watchlist.route("/edit", methods=["GET", "POST"])
@@ -266,7 +287,6 @@ def edit():
 #pr457 date - 04/25/2023
 @watchlist.route("/view_one", methods=["GET", "POST"])
 def view_one():
-    print("i'm here")
     result = ''
     id = int(request.args.get("id",None))
     user_id = json.loads(session['user'])['id']
@@ -280,7 +300,7 @@ def view_one():
     else:
         if type_of == 'league':
             try:
-                result = DB.selectAll("SELECT name,logo FROM IS601_Leagues L JOIN IS601_UserLeagues U on U.league_id = L.id WHERE U.league_id = %s and U.user_id = %s", id,user_id)
+                result = DB.selectAll("SELECT name,logo,country FROM IS601_Leagues L JOIN IS601_UserLeagues U on U.league_id = L.id WHERE U.league_id = %s and U.user_id = %s", id,user_id)
                 print(result.rows)
                 if result.rows:
                     flash("Fetched League from watchlist","success")
@@ -291,7 +311,7 @@ def view_one():
                     flash(f"Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
         else:
              try:
-                result = DB.selectAll("SELECT name, logo FROM IS601_Teams L JOIN IS601_UserTeams U on U.team_id = L.id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
+                result = DB.selectAll("Select T.name as name, T.logo as logo, T.country as country, L.name as league FROM IS601_Teams T JOIN IS601_UserTeams U on U.team_id = T.id JOIN IS601_Leagues L on L.id = T.league_id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
                 if result.rows:
                     flash("Fetched Team from watchlist","success")
                 else:
@@ -350,6 +370,7 @@ def store_teams():
                         code=values(code),
                         logo=values(logo),
                         league_id=values(league_id) '''
+    #pr457 date - 04/25/2023
     headers = {
     'x-rapidapi-host': config.host,
     'x-rapidapi-key': config.key
@@ -373,7 +394,7 @@ def store_teams():
             except Exception as e:
                 flash("There was an error loading the data", "danger")
 
-#pr457 date - 04/25/2023 
+#pr457 date - 04/26/2023 
 @watchlist.route('/getstandings', methods=["GET","POST"])
 def getstandings():
     league_id = request.args.get("name")
