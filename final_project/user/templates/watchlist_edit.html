@@ -1,6 +1,6 @@
 {% macro league_dropdown(val="",ini="") %}
 {# TODO DO NOT EDIT #}
-<select title="drop" class="form-select mb-3" name="name" value="{{ini or ''}}">
+<select title="drop" class="form-select mb-3" name="id" value="{{ini or ''}}">
 {% if val=='league'%}
 {% set options = get_leagues()%}
 {%else%}
