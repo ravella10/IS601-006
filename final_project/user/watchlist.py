@@ -245,6 +245,9 @@ def view_one():
                     flash(f" Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
     return render_template("view.html",result_list = result.rows)
 
+
+
+
             
 
 @current_app.template_global()
