@@ -89,6 +89,7 @@ def view():
     column = request.args.get("column",None)
     order = request.args.get("order",None)
     limit = request.args.get("limit", 10)
+    print(limit)
     allowed_columns = ['name','country']
     allowed_columns_tuples = [(c, c) for c in allowed_columns]
     print(apply_where)
@@ -105,6 +106,13 @@ def view():
                         query+= f''' AND L.name like '%{league_name}%' '''
                     if country_name:
                         query+= f" AND L.country like '%{country_name}%' "
+                    try:
+                        if limit and int(limit) > 0 and int(limit) <= 100:
+                            query += f" LIMIT {limit}"
+                        else:
+                            flash("Limit entered is out of bounds. Limit should be in between 0 and 100", "error")
+                    except Exception as e:
+                            flash("ValueError, the limit entered is not a number", "error")
                 result = DB.selectAll("""
            Select id, name, country, logo from IS601_Leagues L JOIN 
            (Select league_id from IS601_UserLeagues WHERE user_id=%(id)s) U on U.league_id = L.id Where 1=1
@@ -124,6 +132,13 @@ def view():
                     if column in allowed_columns \
                         and order in ["asc", "desc"]:
                         query += f" ORDER BY {column} {order}"
+                    try:
+                        if limit and int(limit) > 0 and int(limit) <= 100:
+                            query += f" LIMIT {limit}"
+                        else:
+                            flash("Limit entered is out of bounds. Limit should be in between 0 and 100", "error")
+                    except Exception as e:
+                            flash("ValueError, the limit entered is not a number", "error")
 
                 result = DB.selectAll("""
            Select id, name, country, logo from IS601_Teams L JOIN 
@@ -141,6 +156,9 @@ def view():
 
 @watchlist.route("/delete", methods=["GET","POST"])
 def delete():
+ 
+    country_name = request.form.get("country_name",None)
+    print(country_name)
     id = request.form.get("name",None)
     user_id = json.loads(session['user'])['id']
     type_of = request.form.get("type",None)
@@ -163,7 +181,7 @@ def delete():
                     flash("Deleted Team from watchlist","success")
              except Exception as e:
                     flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
-    return redirect(url_for("watchlist.view",apply_where=apply_where))
+    return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name))
             
 @watchlist.route("/edit", methods=["GET", "POST"])
 def edit():
@@ -181,9 +199,9 @@ def edit():
         user_id = json.loads(session['user'])['id']
         id = request.form.get('name',None)
         type_of = request.form.get("type",None)
-        previous = int(request.form.get("previous",None))
+        previous = (request.form.get("previous",None))
         if not id or not previous:
-            flash("INvalid id, Please select an option")
+            flash("Invalid id, Please select an option","danger")
             return render_template("watchlist_edit.html",id=id,type=type_of)
         else:
             try:
