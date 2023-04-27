@@ -89,14 +89,14 @@
                     </td>
                     <td><a href="{{url_for('watchlist.getstandings',name=c['id'])}}">{{c['name']}}</a></td>
                     <td>{{c['country']}}</td>
-                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
-                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
+                        <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="league" /></form></td>
-                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
-                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
+                        <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="league" /></form></td>
-                        <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view_one" />
-                            <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view_one" />
+                            <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                             <input type="hidden" id="postId" name="type" value="league" /></form></td>
                 </tr>
                 {% endfor %}
@@ -170,17 +170,17 @@
                     </td>
                     <td>{{c['name']}}</td>
                     <td>{{c['country']}}</td>
-                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
-                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
+                        <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="team" />
                         <input type="hidden" id="postId" name="team_name" value="{{request.args.get('team_name') or ''}}" />
                         <input type="hidden" id="postId" name="country_name" value="{{request.args.get('country_name') or ''}}" />
                     </form></td>
-                    <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
-                        <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
+                        <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="team" /></form></td>
-                        <td><form method="POST"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view" />
-                            <input type="hidden" id="postId" name="name" value="{{c['id']}}" />
+                        <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view_one" />
+                            <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                             <input type="hidden" id="postId" name="type" value="team" /></form></td>
                 </tr>
                 {% endfor %}

@@ -19,7 +19,7 @@ def register():
         return render_template("watchlist.html")
 
     if request.method == "POST":
-        #pr457 date - 3/11/2023
+        #pr457 date - 04/25/2023
         user_id = json.loads(session['user'])['id']
 
         type_attr = request.form.get("type", None)
@@ -36,7 +36,7 @@ def register():
                 flash("No Team was selected","danger")
                 return render_template("watchlist.html",apply_where = 'team')
         
-        #pr457 date - 3/11/2023
+        #pr457 date - 04/25/2023
         has_error = False # use this to control whether or not an insert occurs
         if not has_error and type_attr == 'league':
             try:
@@ -47,13 +47,13 @@ def register():
                         ON DUPLICATE KEY UPDATE user_id=%(id)s, league_id = %(league_id)s
             """, {'id':user_id,'league_id':league_id}
                 )
-                #pr457 date - 4/26/2023
+                #pr457 date - 04/25/2023
                 if result.status:
                     flash("Added to Watchlist", "success")
                 else:
                     flash("not added","danger")
             except Exception as e:
-                #pr457 date - 4/26/2023
+                #pr457 date - 04/25/2023
                 flash(f" Following exception occured while adding the Watchlist record: {str(e)}", "danger")
         else:
             try:
@@ -64,18 +64,18 @@ def register():
                         ON DUPLICATE KEY UPDATE user_id=%(id)s, team_id = %(team_id)s
             """, {'id':user_id,'team_id':team_id}
                 )
-                #pr457 date - 3/11/2023
+                #pr457 date - 04/25/2023
                 if result.status:
                     flash("Added to Watchlist", "success")
                 else:
                     flash("not added","danger")
             except Exception as e:
-                #pr457 date - 3/11/2023
+                #pr457 date - 04/25/2023
                 flash(f" Following exception occured while adding the Watchlist record: {str(e)}", "danger")
 
     return redirect(url_for('watchlist.view',apply_where=type_attr))
 
-
+#pr457 date - 04/25/2023
 @watchlist.route("/view", methods=["GET","POST"])
 def view():
     result_list = ''
@@ -94,10 +94,11 @@ def view():
     allowed_columns_tuples = [(c, c) for c in allowed_columns]
     print(apply_where)
     if request.method == "GET" or request.method == "POST":
-        #pr457 date - 3/11/2023
+
         user_id = json.loads(session['user'])['id']
-            #pr457 date - 3/11/2023
+            
         has_error = False # use this to control whether or not an insert occurs
+        #pr457 date - 04/25/2023
         if not has_error:
             try:
                 query = ''
@@ -145,23 +146,23 @@ def view():
            (Select team_id from IS601_UserTeams WHERE user_id=%(id)s) U on U.team_id = L.id Where 1=1
             """+query, {'id':user_id})
                 team_list = result.rows
-                #pr457 date - 3/11/2023
+                #pr457 date - 04/25/2023
                 if not result.rows:
                     flash("Couldn't find any Watchlist records", "danger")
             except Exception as e:
-                #pr457 date - 3/11/2023
+                #pr457 date - 04/25/2023
                 flash(f" Following exception occured while Fetching the Watchlist record: {str(e)}", "danger")
     return render_template("watchlist_view.html",league_list = league_list, team_list = team_list, allowed_columns = allowed_columns_tuples,apply_where=apply_where)
 
-
+#pr457 date - 04/25/2023
 @watchlist.route("/delete", methods=["GET","POST"])
 def delete():
  
-    country_name = request.form.get("country_name",None)
+    country_name = request.args.get("country_name",None)
     print(country_name)
-    id = request.form.get("name",None)
+    id = request.args.get("id",None)
     user_id = json.loads(session['user'])['id']
-    type_of = request.form.get("type",None)
+    type_of = request.args.get("type",None)
     apply_where = '' if type_of=='league' else type_of
     if not id:
         flash('Id is missing','danger')
@@ -181,25 +182,56 @@ def delete():
                     flash("Deleted Team from watchlist","success")
              except Exception as e:
                     flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
-    return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name))
-            
+    return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name,id=id))
+
+#pr457 date - 04/25/2023
 @watchlist.route("/edit", methods=["GET", "POST"])
 def edit():
-    id = request.form.get("name",None)
-    type_of = request.form.get("type",None)
+    id = request.args.get("id",None)
+    user_id = json.loads(session['user'])['id']
+    type_of = request.args.get("type",None)
     apply_where = '' if type_of=='league' else type_of
-    button_type = request.form.get("submit_button",'')
+    button_type = request.args.get("submit_button",'')
+    print(id)
+    print(user_id)
+    print(button_type)
     if button_type == "edit":
         if not id:
             flash('Id is missing','danger')
             redirect(url_for("watchlist.view",apply_where=apply_where))
         else:
+            try:
+                if type_of == 'league':
+                    result = DB.selectAll("""
+                        Select * FROM IS601_UserLeagues WHERE user_id = %s and league_id = %s
+                        """,user_id, id)
+                    print(result.rows)
+                    if result.rows:
+                        flash("Fecthed League from watchlist","success")
+                    else:
+                        flash("Invalid ID! Unable to Fetch League from watchlist","danger")
+                        return redirect(url_for("watchlist.view",apply_where=apply_where))
+                else:
+                    result = DB.selectAll("""
+                        Select * FROM IS601_UserTeams WHERE user_id = %s and team_id = %s
+                        """, user_id, id )
+                    if result.rows:
+                        flash("Fetched League from watchlist","success")
+                    else:
+                        flash("Invalid ID! Unable to Fetch League from watchlist","danger")
+                        return redirect(url_for("watchlist.view",apply_where=apply_where))
+            except Exception as e:
+                if 'Duplicate' in str(e):
+                    flash('Duplicate record','danger')
+                else:
+                    flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
             return render_template("watchlist_edit.html",id=id,type=type_of)
     else:
         user_id = json.loads(session['user'])['id']
-        id = request.form.get('name',None)
-        type_of = request.form.get("type",None)
-        previous = (request.form.get("previous",None))
+        id = request.args.get('id',None)
+        type_of = request.args.get("type",None)
+        previous = (request.args.get("previous",None))
+        print(id)
         if not id or not previous:
             flash("Invalid id, Please select an option","danger")
             return render_template("watchlist_edit.html",id=id,type=type_of)
@@ -209,18 +241,20 @@ def edit():
                     result = DB.update("""
                         UPDATE IS601_UserLeagues SET league_id = %s WHERE user_id = %s and league_id = %s
                         """,id, user_id, previous)
-                    if result.status:
+                    if result.rows:
                         flash("Modified League from watchlist","success")
                     else:
                         flash("Unable to modify League from watchlist")
+                        redirect(url_for("watchlist.view",apply_where=apply_where))
                 else:
                     result = DB.update("""
                         UPDATE IS601_UserTeams SET team_id = %s WHERE user_id = %s and team_id = %s
                         """,id, user_id, previous )
-                    if result.status:
+                    if result.rows:
                         flash("Modified League from watchlist","success")
                     else:
                         flash("Unable to modify League from watchlist")
+                        redirect(url_for("watchlist.view",apply_where=apply_where))
             except Exception as e:
                 if 'Duplicate' in str(e):
                     flash('Duplicate record','danger')
@@ -228,13 +262,16 @@ def edit():
                     flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
             return redirect(url_for("watchlist.view", apply_where=apply_where))
         
+#pr457 date - 04/25/2023
 @watchlist.route("/view_one", methods=["GET", "POST"])
 def view_one():
+    print("i'm here")
     result = ''
-    id = int(request.form.get("name",None))
+    id = int(request.args.get("id",None))
     user_id = json.loads(session['user'])['id']
-    type_of = request.form.get("type",None)
-   
+    type_of = request.args.get("type",None)
+    print(id)
+    print("lol")
     apply_where = '' if type_of=='league' else type_of
     if not id:
         flash('Id is missing','danger')
@@ -244,30 +281,27 @@ def view_one():
             try:
                 result = DB.selectAll("SELECT name,logo FROM IS601_Leagues L JOIN IS601_UserLeagues U on U.league_id = L.id WHERE U.league_id = %s and U.user_id = %s", id,user_id)
                 print(result.rows)
-                if not result.status:
+                if result.rows:
                     flash("Fetched League from watchlist","success")
                 else:
                     flash("Invalid id","danger")
                     return redirect(url_for("watchlist.view",apply_where=apply_where))
             except Exception as e:
-                    flash(f" Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
+                    flash(f"Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
         else:
              try:
-                result = DB.selectAll("SELECT name,logo FROM IS601_Teams L JOIN IS601_UserTeams U on U.team_id = L.id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
-                if not result.rows:
+                result = DB.selectAll("SELECT name, logo FROM IS601_Teams L JOIN IS601_UserTeams U on U.team_id = L.id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
+                if result.rows:
                     flash("Fetched Team from watchlist","success")
                 else:
                     flash("Invalid id","danger")
                     return redirect(url_for("watchlist.view",apply_where=apply_where))
              except Exception as e:
-                    flash(f" Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
+                    flash(f"Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
     return render_template("view.html",result_list = result.rows)
 
-
-
-
             
-
+#pr457 date - 04/25/2023
 @current_app.template_global()
 def get_leagues():
         from sql.db import DB
@@ -280,7 +314,7 @@ def get_leagues():
         except Exception as e:
             print(e)
         return []
-
+#pr457 date - 04/25/2023
 @current_app.template_global()
 def get_teams():
     from sql.db import DB
@@ -294,7 +328,7 @@ def get_teams():
         print(e)
     return []
 
-
+#pr457 date - 04/25/2023
 @watchlist.route('/getall', methods=["GET","POST"])
 def store_teams():
     league_ids = []
@@ -337,7 +371,8 @@ def store_teams():
                 flash(f"Inserted {len(teams)} teams records successfully!", "success")
             except Exception as e:
                 flash("There was an error loading the data", "danger")
-        
+
+#pr457 date - 04/25/2023 
 @watchlist.route('/getstandings', methods=["GET","POST"])
 def getstandings():
     league_id = request.args.get("name")
