@@ -204,7 +204,10 @@ def edit():
                     else:
                         flash("Unable to modify League from watchlist")
             except Exception as e:
-                flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
+                if 'Duplicate' in str(e):
+                    flash('Duplicate record','danger')
+                else:
+                    flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
             return redirect(url_for("watchlist.view", apply_where=apply_where))
         
 @watchlist.route("/view_one", methods=["GET", "POST"])
@@ -221,19 +224,25 @@ def view_one():
     else:
         if type_of == 'league':
             try:
-                result = DB.selectAll("SELECT * FROM IS601_Leagues WHERE id = %s", id)
+                result = DB.selectAll("SELECT name,logo FROM IS601_Leagues L JOIN IS601_UserLeagues U on U.league_id = L.id WHERE U.league_id = %s and U.user_id = %s", id,user_id)
                 print(result.rows)
-                if result.status:
+                if not result.status:
                     flash("Fetched League from watchlist","success")
+                else:
+                    flash("Invalid id","danger")
+                    return redirect(url_for("watchlist.view",apply_where=apply_where))
             except Exception as e:
-                    flash(f" Following exception occured while deleting the League from watchlist: {str(e)}", "danger")
+                    flash(f" Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
         else:
              try:
-                result = DB.selectAll("SELECT * FROM IS601_User WHERE id = %s", id)
-                if result.status:
+                result = DB.selectAll("SELECT name,logo FROM IS601_Teams L JOIN IS601_UserTeams U on U.team_id = L.id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
+                if not result.rows:
                     flash("Fetched Team from watchlist","success")
+                else:
+                    flash("Invalid id","danger")
+                    return redirect(url_for("watchlist.view",apply_where=apply_where))
              except Exception as e:
-                    flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
+                    flash(f" Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
     return render_template("view.html",result_list = result.rows)
 
             
