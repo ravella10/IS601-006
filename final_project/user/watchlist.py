@@ -241,20 +241,21 @@ def edit():
                     result = DB.update("""
                         UPDATE IS601_UserLeagues SET league_id = %s WHERE user_id = %s and league_id = %s
                         """,id, user_id, previous)
-                    if result.rows:
+                    print(result)
+                    if result.status:
                         flash("Modified League from watchlist","success")
                     else:
                         flash("Unable to modify League from watchlist")
-                        redirect(url_for("watchlist.view",apply_where=apply_where))
+                        return redirect(url_for("watchlist.view",apply_where=apply_where))
                 else:
                     result = DB.update("""
                         UPDATE IS601_UserTeams SET team_id = %s WHERE user_id = %s and team_id = %s
                         """,id, user_id, previous )
-                    if result.rows:
+                    if result.status:
                         flash("Modified League from watchlist","success")
                     else:
-                        flash("Unable to modify League from watchlist")
-                        redirect(url_for("watchlist.view",apply_where=apply_where))
+                        flash("Unable to modify League from watchlist",'danger')
+                        return redirect(url_for("watchlist.view",apply_where=apply_where))
             except Exception as e:
                 if 'Duplicate' in str(e):
                     flash('Duplicate record','danger')
