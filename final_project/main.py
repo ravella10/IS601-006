@@ -46,8 +46,10 @@ def create_app(config_filename=''):
         app.register_blueprint(auth)
         from roles.roles import roles
         app.register_blueprint(roles)
+
         from user.watchlist import watchlist
         app.register_blueprint(watchlist)
+
 
         # load the extension
         principals = Principal(app) # must be defined/initialized for identity to work (flask_principal)
@@ -75,6 +77,7 @@ def create_app(config_filename=''):
             return None
     
 
+
         @identity_loaded.connect_via(app)
         def on_identity_loaded(sender, identity):
             # Set the identity user object
@@ -99,4 +102,3 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
-    
