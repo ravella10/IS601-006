@@ -2,7 +2,23 @@
 {% block title %}Landing Page{% endblock %}
 {% block content %}
 <div class="container-fluid">
-    <div class="h3">Welcome</div>
-    {{current_user.username}}
+    <div class="h3">Welcome {{current_user.username}}</div>
+    {% if not current_user.has_role("Admin") %}
+    <div class="h4">Current Fixtures</div>
+    <div id="wg-api-football-fixtures"
+                    data-host="v3.football.api-sports.io"
+                    data-refresh="0"
+                    data-date="2022-02-11"
+                    data-key="775fad0079b79759fd27251676b2398e"
+                    data-theme=""
+                    data-show-errors="false"
+                    class="api_football_loader">
+        </div>
+        <script
+                    type="module"
+                    src="https://widgets.api-sports.io/football/1.1.8/widget.js">
+                </script>
+    {%endif%}
 </div>
+
 {% endblock %}

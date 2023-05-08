@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block title %}Watchlist{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!--form controls-->
+    <form method="GET"> 
+        <div class="row">
+            <div class="col-12" style="max-width: 10%;">
+                <label class="form-label visually-hidden" for="email">Email</label>
+                <input type="text" name="email" class="form-control" id="fn" placeholder="Email"
+                    value="{{request.args.get('email') or ''}}">
+                </div>
+        
+                <input type="hidden" id="postId" name="apply_where" value='' />
+
+                <div class="col">
+                    <input type="submit" class="btn btn-primary" value="Filter" />
+                </div>
+
+                </div>
+                
+
+    </form>
+ 
+    <!--Leagues-->
+
+    <div class="container">
+        <div class="row">
+        <div class="col-12">
+            <table class="table table-image">
+                <thead>
+                <tr>
+                    <th scope="col">User_id</th>
+                    <th scope="col">User_name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Entity_id</th>
+                    <th scope="col">Entity_name</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in team_list%}
+                <tr>
+                    <td>{{c['user_id']}}</td>
+                    <td>{{c['username']}}</td>
+                    <td>{{c['email']}}</td>
+                    <td>{{c['team_id']}}</td>
+                    <td>{{c['name']}}</td>
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="{{url_for('teams.delete')}}" />
+                        <input type="hidden" id="postId" name="user_id" value="{{c['user_id']}}"/>
+                        <input type="hidden" id="postId" name="id" value="{{c['team_id']}}" />
+                        <input type="hidden" id="postId" name="type" value="team" /></form></td>
+                </tr>
+                {% endfor %}
+                {% for c in league_list%}
+                <tr>
+                    <td>{{c['user_id']}}</td>
+                    <td>{{c['username']}}</td>
+                    <td>{{c['email']}}</td>
+                    <td>{{c['league_id']}}</td>
+                    <td>{{c['name']}}</td>
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="{{url_for('teams.delete',email=request.args.get('email'))}}" />
+                        <input type="hidden" id="postId" name="user_id" value="{{c['user_id']}}"/>
+                        <input type="hidden" id="postId" name="id" value="{{c['league_id']}}" />
+                        <input type="hidden" id="postId" name="type" value="league" /></form></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>   
+        </div>
+
+
+
+{% endblock %}
+
+
+
+

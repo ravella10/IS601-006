@@ -78,7 +78,9 @@ def register():
 #pr457 date - 04/25/2023
 @watchlist.route("/view", methods=["GET","POST"])
 def view():
-    result_list = ''
+    league_count = 0
+    team_count = 0
+    league_list = ''
     league_list = []
     team_list = []
     apply_where = request.args.get("apply_where",'')
@@ -114,12 +116,18 @@ def view():
                             flash("Limit entered is out of bounds. Limit should be in between 0 and 100", "error")
                     except Exception as e:
                             flash("ValueError, the limit entered is not a number", "error")
-                result = DB.selectAll("""
+                result_1 = DB.selectAll("""
            Select id, name, country, logo from IS601_Leagues L JOIN 
            (Select league_id from IS601_UserLeagues WHERE user_id=%(id)s) U on U.league_id = L.id Where 1=1
             """+query, {'id':user_id}
                 )
-                league_list = result.rows
+                if not result_1.rows and apply_where == '':
+                    flash("Couldn't find any Watchlist records", "danger")
+                else:
+                    count_result = DB.selectAll("""SELECT count(*) as count FROM IS601_UserLeagues WHERE user_id=%s""",user_id)
+                    league_count = count_result.rows[0]['count']
+                    flash("League count is" + str(league_count))
+                league_list = result_1.rows
                 query = ''
                 if apply_where == 'team':
                     if team_name:
@@ -141,14 +149,18 @@ def view():
                     except Exception as e:
                             flash("ValueError, the limit entered is not a number", "error")
 
-                result = DB.selectAll("""
-           Select id, name, country, logo from IS601_Teams L JOIN 
+                result_2 = DB.selectAll("""
+           Select id, name, country, logo, league_id from IS601_Teams L JOIN 
            (Select team_id from IS601_UserTeams WHERE user_id=%(id)s) U on U.team_id = L.id Where 1=1
             """+query, {'id':user_id})
-                team_list = result.rows
+                team_list = result_2.rows
                 #pr457 date - 04/25/2023
-                if not result.rows:
+                if not result_2.rows and apply_where == 'team':
                     flash("Couldn't find any Watchlist records", "danger")
+                else:
+                    count_result = DB.selectAll("""SELECT count(*) as count FROM IS601_UserTeams WHERE user_id=%s""",user_id)
+                    team_count = count_result.rows[0]['count']
+                    flash("Team count is "+str(team_count))
             except Exception as e:
                 #pr457 date - 04/25/2023
                 flash(f" Following exception occured while Fetching the Watchlist record: {str(e)}", "danger")
@@ -158,13 +170,17 @@ def view():
 @watchlist.route("/delete", methods=["GET","POST"])
 def delete():
     country_name = request.args.get("country_name",None)
-    print(country_name)
     id = request.args.get("id",None)
+    clear = request.args.get("clear_button",None)
     user_id = json.loads(session['user'])['id']
     type_of = request.args.get("type",None)
-    apply_where = '' if type_of=='league' else type_of
+    if type_of is not None:
+        apply_where = '' if type_of=='league' else type_of
+    else:
+        apply_where = request.args.get('apply_where')
+        type_of = 'league' if apply_where=='' else 'team'
     try:
-        if type_of == 'league':
+        if type_of == 'league' and not clear:
             result = DB.selectAll("""
                 Select * FROM IS601_UserLeagues WHERE user_id = %s and league_id = %s
                 """,user_id, id)
@@ -172,7 +188,7 @@ def delete():
             if not result.rows:
                 flash("Invalid ID! Unable to Delete League from watchlist","danger")
                 return redirect(url_for("watchlist.view",apply_where=apply_where,did=id))
-        else:
+        elif not clear:
             result = DB.selectAll("""
                 Select * FROM IS601_UserTeams WHERE user_id = %s and team_id = %s
                 """, user_id, id )
@@ -184,23 +200,39 @@ def delete():
             flash('Duplicate record','danger')
         else:
             flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
-    
-    if not id:
+    print("league is")
+    print(type_of)
+    if not id and not clear:
         flash('Id is missing','danger')
         redirect(url_for("watchlist.view",apply_where=apply_where))
     else:
         if type_of == 'league':
             try:
-                result = DB.delete("DELETE FROM IS601_UserLeagues WHERE league_id = %s and user_id = %s", id, user_id)
-                if result.status:
-                    flash("Deleted League from watchlist","success")
+                if clear:
+                    print("this is user id"+str(user_id))
+                    result = DB.delete("DELETE FROM IS601_UserLeagues WHERE user_id = %s", user_id)
+                    if result.status:
+                        flash("Deleted All Leagues from watchlist","success")
+                    else:
+                        flash("No leagues to Delete from watchlist")
+                else:
+                    result = DB.delete("DELETE FROM IS601_UserLeagues WHERE league_id = %s and user_id = %s", id, user_id)
+                    if result.status:
+                        flash("Deleted League from watchlist","success")
             except Exception as e:
                     flash(f" Following exception occured while deleting the League from watchlist: {str(e)}", "danger")
         else:
              try:
-                result = DB.delete("DELETE FROM IS601_UserTeams WHERE team_id = %s and user_id = %s", id, user_id)
-                if result.status:
-                    flash("Deleted Team from watchlist","success")
+                if clear:
+                    result = DB.delete("DELETE FROM IS601_UserTeams WHERE user_id = %s", user_id)
+                    if result.status:
+                        flash("Deleted All Teams from watchlist","success")
+                    else:
+                        flash("No Teams to Delete from watchlist")
+                else:
+                    result = DB.delete("DELETE FROM IS601_UserTeams WHERE team_id = %s and user_id = %s", id, user_id)
+                    if result.status:
+                        flash("Deleted Team from watchlist","success")
              except Exception as e:
                     flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
     return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name,did=id))
@@ -285,41 +317,28 @@ def edit():
             return redirect(url_for("watchlist.view", apply_where=apply_where))
         
 #pr457 date - 04/25/2023
-@watchlist.route("/view_one", methods=["GET", "POST"])
-def view_one():
-    result = ''
-    id = int(request.args.get("id",None))
-    user_id = json.loads(session['user'])['id']
-    type_of = request.args.get("type",None)
-    print(id)
-    print("lol")
-    apply_where = '' if type_of=='league' else type_of
-    if not id:
-        flash('Id is missing','danger')
-        redirect(url_for("watchlist.view",apply_where=apply_where))
-    else:
-        if type_of == 'league':
-            try:
-                result = DB.selectAll("SELECT name,logo,country FROM IS601_Leagues L JOIN IS601_UserLeagues U on U.league_id = L.id WHERE U.league_id = %s and U.user_id = %s", id,user_id)
-                print(result.rows)
-                if result.rows:
-                    flash("Fetched League from watchlist","success")
-                else:
-                    flash("Invalid id","danger")
-                    return redirect(url_for("watchlist.view",apply_where=apply_where,lid=id))
-            except Exception as e:
-                    flash(f"Following exception occured while Fetching the League from watchlist: {str(e)}", "danger")
-        else:
-             try:
-                result = DB.selectAll("Select T.name as name, T.logo as logo, T.country as country, L.name as league FROM IS601_Teams T JOIN IS601_UserTeams U on U.team_id = T.id JOIN IS601_Leagues L on L.id = T.league_id WHERE U.team_id = %s and U.user_id = %s", id,user_id)
-                if result.rows:
-                    flash("Fetched Team from watchlist","success")
-                else:
-                    flash("Invalid id","danger")
-                    return redirect(url_for("watchlist.view",apply_where=apply_where,tid=id))
-             except Exception as e:
-                    flash(f"Following exception occured while Fetching the Team from watchlist: {str(e)}", "danger")
-    return render_template("view.html",result_list = result.rows)
+@watchlist.route("/viewstatistics", methods=["GET", "POST"])
+def viewstatistics():
+    league_id = request.args.get("league_id")
+    team_id = request.args.get('id')
+    print(team_id)
+    print(league_id)
+    headers = {
+    'x-rapidapi-host': config.host,
+    'x-rapidapi-key': config.key
+    }
+    conn = http.client.HTTPSConnection(config.host)
+    conn.request("GET", f"/teams/statistics?team={team_id}&season=2022&league={league_id}", headers=headers)
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    response = json.loads(data)['response']
+    print(response)
+    fixtures = response['fixtures']
+    goals_for = response['goals']['for']
+    goals_against = response['goals']['against']
+    team_info = response['team']
+    response_info = response['league']
+    return render_template("view.html",fixtures=fixtures,goals_for=goals_for,goals_against=goals_against,team_info=team_info,response_info=response_info)
 
             
 #pr457 date - 04/25/2023
@@ -335,6 +354,7 @@ def get_leagues():
         except Exception as e:
             print(e)
         return []
+
 #pr457 date - 04/25/2023
 @current_app.template_global()
 def get_teams():
@@ -412,4 +432,10 @@ def getstandings():
     return render_template("standings.html",standings=standings)
     
 
+
+@watchlist.route('/getfixtures', methods=["GET","POST"])
+def getfixtures():
+    league_id = request.args.get("name")
+    key = config.key
+    return render_template('fixtures.html',key = key, league_id = league_id)
 
