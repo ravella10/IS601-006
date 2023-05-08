@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Watchlist{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!--form controls-->
+    <form method="GET"> 
+        <div class="row">
+            <div class="col-12" style="max-width: 10%;">
+                <label class="form-label visually-hidden" for="email">Email</label>
+                <input type="text" name="email" class="form-control" id="fn" placeholder="Email"
+                    value="{{request.args.get('email') or ''}}">
+                </div>
+        
+                <input type="hidden" id="postId" name="apply_where" value='' />
+
+                <div class="col">
+                    <input type="submit" class="btn btn-primary" value="Filter" />
+                </div>
+
+                </div>
+                
+
+    </form>
+ 
+    <!--Leagues-->
+
+    <div class="container">
+        <div class="row">
+        <div class="col-12">
+            <table class="table table-image">
+                <thead>
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">User_name</th>
+                    <th scope="col">Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in rows%}
+                <tr>
+                    <td>{{c['id']}}</td>
+                    <td>{{c['username']}}</td>
+                    <td>{{c['email']}}</td>
+                    <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="add entity" formaction="{{url_for('teams.add')}}" />
+                        <input type="hidden" id="postId" name="user_id" value="{{c['id']}}"/></form></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>   
+        </div>
+
+
+{% endblock %}
+
+
+
+
