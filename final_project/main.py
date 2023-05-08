@@ -46,9 +46,10 @@ def create_app(config_filename=''):
         app.register_blueprint(auth)
         from roles.roles import roles
         app.register_blueprint(roles)
-
         from user.watchlist import watchlist
         app.register_blueprint(watchlist)
+        from user.teams import teams
+        app.register_blueprint(teams)
 
 
         # load the extension

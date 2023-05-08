@@ -15,24 +15,16 @@
 {% endmacro %}
 
 {% extends "layout.html" %}
-{% block head %}
-{{super()}}
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
- <!--Bootstrap CSS-->
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
-
-<!--Fontawesome-->
-<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-
-
-
-{% endblock %}
 {% block title %}Watchlist{% endblock %}
 {% block content %}
-<nav>
+<nav style="
+background-image: url('https://i0.wp.com/ordinaryfaith.net/wp-content/uploads/2016/03/Gray-plain-website-background.jpg?fit=1920%2C1080&ssl=1');
+min-height: 100%;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+background-size: cover;">
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
       <a class="nav-link active" id="nav-league-tab" data-bs-toggle="tab" href="#nav-league" role="tab" aria-controls="nav-league" aria-selected="true">Leagues</a>
       <a class="nav-link" id="nav-team-tab" data-bs-toggle="tab" href="#nav-team" role="tab" aria-controls="nav-team" aria-selected="false">Teams</a>
@@ -40,8 +32,11 @@
   </nav>
 
 <!-- Tab panes -->
-<div class="tab-content" id="nav-tabContent">
-  <div class="tab-pane fade {{'show active' if not apply_where}}" id="nav-league" role="tabpanel" aria-labelledby="nav-league-tab">
+<div class="tab-content" id="nav-tabContent" style="
+background-image: url('https://i0.wp.com/ordinaryfaith.net/wp-content/uploads/2016/03/Gray-plain-website-background.jpg?fit=1920%2C1080&ssl=1');
+height: 100vh;">
+  <div class="tab-pane fade {{'show active' if not apply_where}}" id="nav-league" role="tabpanel" aria-labelledby="nav-league-tab" >
+    {% if league_list and league_list|length > 0 %}
     <div class="container-fluid">
     <!--form controls-->
     <form method="GET"> 
@@ -51,7 +46,6 @@
                 <input type="text" name="league_name" class="form-control" id="fn" placeholder="League Name"
                     value="{{request.args.get('league_name') or ''}}">
                 </div>
-
                 <div class="col-12" style="max-width: 10%;">
                     <label class="form-label visually-hidden" for="country_name">Country</label>
                     <input type="text" name="country_name" class="form-control" id="ln" placeholder="Country"
@@ -62,10 +56,7 @@
                 <div class="col">
                     <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
-
                 </div>
-                
-
     </form>
  
     <!--Leagues-->
@@ -73,7 +64,7 @@
     <div class="container">
         <div class="row">
         <div class="col-12">
-            <table class="table table-image">
+            <table style="color: white;" class="table table-borderless">
                 <thead>
                 <tr>
                     <th scope="col"></th>
@@ -87,7 +78,7 @@
                     <td class="w-25">
                         <img src = "{{c['logo']}}" alt="{{c['name']+' logo'}}">
                     </td>
-                    <td><a href="{{url_for('watchlist.getstandings',name=c['id'])}}">{{c['name']}}</a></td>
+                    <td>{{c['name']}}</td>
                     <td>{{c['country']}}</td>
                     <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="remove" formaction="../watchlist/delete" />
                         <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
@@ -95,9 +86,10 @@
                     <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
                         <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="league" /></form></td>
-                        <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view_one" />
-                            <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
-                            <input type="hidden" id="postId" name="type" value="league" /></form></td>
+                        <td><a href="{{url_for('watchlist.getstandings',name=c['id'])}}">Standings</a></td>
+                        <td><a href="{{url_for('watchlist.getfixtures',name=c['id'])}}">Fixtues and live results</a></td>
+                        <td></td>
+
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -110,8 +102,12 @@
   
    
     </div>
+    {%else%}
+<h1>No leagues in Watchlist Yet</h1>
+    {%endif%}
   </div>
   <div class="tab-pane fade {{'show active' if apply_where}}" id="nav-team" role="tabpanel" aria-labelledby="nav-team-tab">
+    {% if team_list and team_list|length > 0 %}
     <div class="container-fluid">
     <form method="GET"> 
         
@@ -154,7 +150,7 @@
        <div class="container">
         <div class="row">
         <div class="col-12">
-            <table class="table table-image">
+            <table style="color: white;" class="table table-borderless">
                 <thead>
                 <tr>
                     <th scope="col"></th>
@@ -179,8 +175,9 @@
                     <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="edit" formaction="../watchlist/edit" />
                         <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
                         <input type="hidden" id="postId" name="type" value="team" /></form></td>
-                        <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="view" formaction="../watchlist/view_one" />
+                        <td><form method="GET"><input type="submit" name="submit_button" class="btn btn-primary" value="view stats" formaction="{{url_for('watchlist.viewstatistics')}}" />
                             <input type="hidden" id="postId" name="id" value="{{c['id']}}" />
+                            <input type="hidden" id="postId" name="league_id" value="{{c['league_id']}}"/>
                             <input type="hidden" id="postId" name="type" value="team" /></form></td>
                 </tr>
                 {% endfor %}
@@ -189,18 +186,17 @@
         </div>
         </div>
     </div>
-    
-
-
-
 
     </div>
+{%else%}
+<h1>No Teams in Watchlist Yet</h1>
+{%endif%}
+
   </div>
 </div>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 {% endblock %}
 
 

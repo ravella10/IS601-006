@@ -14,6 +14,7 @@
 {% endmacro %}
 {% extends "layout.html" %}
 
+
 {% block title %}Edit Watchlist{% endblock %}
 {% block content %}
 <nav style="
@@ -24,7 +25,7 @@ background-attachment: fixed;
 background-position: center;
 background-size: cover;">
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-      <a class="nav-link active" id="nav-league-tab" data-bs-toggle="tab" href="#nav-league" role="tab" aria-controls="nav-league" style = "color: rgb(30, 0, 128) "aria-selected="true">Leagues</a>
+      <a class="nav-link active" id="nav-league-tab" data-bs-toggle="tab" href="#nav-league" role="tab" aria-controls="nav-league" style = "color: rgb(30, 0, 128)" aria-selected="true">Leagues</a>
       <a class="nav-link" id="nav-team-tab" data-bs-toggle="tab" href="#nav-team" role="tab" aria-controls="nav-team" style = "color: rgb(30, 0, 128)" aria-selected="false">Teams</a>
     </div>
   </nav>
@@ -37,6 +38,7 @@ height: 100vh;">>
 <form method="POST">
     {{league_dropdown('Leagues')}}
     <input type="hidden" id="postId" name="type" value="league" />
+    <input type="hidden" id="userId" name="user_id" value="{{id}}" />
     <input type="submit" class="btn btn-primary" value="Save Watchlist" />
 </form>
   </div>
@@ -44,6 +46,7 @@ height: 100vh;">>
     <form method="POST">
     {{league_dropdown('Teams')}}
     <input type="hidden" id="postId" name="type" value="team" />
+    <input type="hidden" id="userId" name="user_id" value="{{id}}" />
     <input type="submit" class="btn btn-primary" value="Save Watchlist" />
 </form>
   </div>
