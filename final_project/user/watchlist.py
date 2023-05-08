@@ -51,13 +51,13 @@ def register():
                         ON DUPLICATE KEY UPDATE user_id=%(id)s, league_id = %(league_id)s
             """, {'id':user_id,'league_id':league_id}
                 )
-                #pr457 date - 04/25/2023
+                
                 if result.status:
                     flash("Added to Watchlist", "success")
                 else:
                     flash("not added","danger")
             except Exception as e:
-                #pr457 date - 04/25/2023
+            
                 flash(f" Following exception occured while adding the Watchlist record: {str(e)}", "danger")
         else:
             try:
