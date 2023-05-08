@@ -13,13 +13,17 @@ watchlist = Blueprint('watchlist', __name__, url_prefix='/watchlist',template_fo
 # https://stackoverflow.com/a/20069821 (for http_exception)
 
 
+
+
+
+#pr457 date - 05/4/2023
 @watchlist.route("/add", methods=["GET","POST"])
 def register():
     if request.method == "GET":
         return render_template("watchlist.html")
 
     if request.method == "POST":
-        #pr457 date - 04/25/2023
+        #pr457 date - 05/4/2023
         user_id = json.loads(session['user'])['id']
 
         type_attr = request.form.get("type", None)
@@ -36,7 +40,7 @@ def register():
                 flash("No Team was selected","danger")
                 return render_template("watchlist.html",apply_where = 'team')
         
-        #pr457 date - 04/25/2023
+        #pr457 date - 05/4/2023
         has_error = False # use this to control whether or not an insert occurs
         if not has_error and type_attr == 'league':
             try:
@@ -64,13 +68,13 @@ def register():
                         ON DUPLICATE KEY UPDATE user_id=%(id)s, team_id = %(team_id)s
             """, {'id':user_id,'team_id':team_id}
                 )
-                #pr457 date - 04/25/2023
+                #pr457 date - 05/3/2023
                 if result.status:
                     flash("Added to Watchlist", "success")
                 else:
                     flash("not added","danger")
             except Exception as e:
-                #pr457 date - 04/25/2023
+                #pr457 date - 05/3/2023
                 flash(f" Following exception occured while adding the Watchlist record: {str(e)}", "danger")
 
     return redirect(url_for('watchlist.view',apply_where=type_attr))

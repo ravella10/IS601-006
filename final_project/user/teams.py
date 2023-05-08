@@ -218,7 +218,7 @@ def associate():
     try:
         if type_of == '' or type_of == 'team':
             if na:
-                result_1 = DB.selectAll(f"SELECT L.name, 0 as `count` FROM IS601_Leagues L LEFT JOIN IS601_UserLeagues UL on UL.league_id = L.id WHERE UL.league_id is null LIMIT {limit} ")
+                result_1 = DB.selectAll(f"SELECT T.name, 0 as `count` FROM IS601_Teams T LEFT JOIN IS601_UserTeams UT on UT.team_id = T.id WHERE UT.team_id is null LIMIT {limit} ")
                 if result_1.status and result_1.rows:
                     team_list = result_1.rows
                 else:
@@ -231,7 +231,7 @@ def associate():
                     flash('No teams found')
         if type_of == '' or type_of == 'league':
             if na:
-                result_2 = DB.selectAll(f"SELECT T.name, 0 as `count` FROM IS601_Teams T LEFT JOIN IS601_UserTeams UT on UT.team_id = T.id WHERE UT.team_id is null LIMIT {limit} ")
+                result_2 = DB.selectAll(f"SELECT L.name, 0 as `count` FROM IS601_Leagues L LEFT JOIN IS601_UserLeagues UL on UL.league_id = L.id WHERE UL.league_id is null LIMIT {limit} ")
                 if result_2.status and result_2.rows:
                     league_list = result_2.rows
                 else:
