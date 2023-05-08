@@ -178,35 +178,72 @@ def associate():
     type_of = request.args.get('type_of','')
     league_name = request.args.get('league_name', None)
     team_name = request.args.get('team_name', None)
+    column = request.args.get("column",None)
+    order = request.args.get("order",None)
+    na = request.args.get("NA",None)
+    count_no = request.args.get('count_filter',None)
+    limit = request.args.get("limit", 10)
+    allowed_columns = ['count']
+    allowed_columns_tuples = [(c, c) for c in allowed_columns]
+    query1 = ''
+    query2 = ''
 
-    
     if team_name:
-        query1 = f"AND T.name like '%{team_name}%' GROUP BY UT.team_id LIMIT 100"
+        query1 += f"AND T.name like '%{team_name}%' GROUP BY UT.team_id"
         type_of = 'team'
     else:
-        query1 = 'GROUP BY UT.team_id LIMIT 100'
+        query1 += 'GROUP BY UT.team_id'
+    
+    if column in allowed_columns \
+                        and order in ["asc", "desc"]:
+                        query1 += f" ORDER BY {column} {order}"
+    
     if league_name:
-        query2 = f"AND L.name like '%{league_name}%' GROUP BY UL.league_id LIMIT 100"
+        query2 += f"AND L.name like '%{league_name}%' GROUP BY UL.league_id"
         type_of = 'league'
     else:
-        query2 = 'GROUP BY UL.league_id LIMIT 100'
+        query2 += 'GROUP BY UL.league_id'
+
+    if column in allowed_columns \
+                        and order in ["asc", "desc"]:
+                        query2 += f" ORDER BY {column} {order}"
+    
     if team_name and league_name:
         type_of = ''
+
+    if count_no:
+        query1 += f" HAVING count<{count_no}"
+        query2 += f" HAVING count<{count_no}"
+
     try:
         if type_of == '' or type_of == 'team':
-            result_1 = DB.selectAll(f"SELECT T.name, COUNT(UT.user_id) as `count` FROM IS601_UserTeams UT JOIN IS601_Teams T on UT.team_id = T.id WHERE 1=1 {query1} ")
-            if result_1.status and result_1.rows:
-                team_list = result_1.rows
+            if na:
+                result_1 = DB.selectAll(f"SELECT L.name, 0 as `count` FROM IS601_Leagues L LEFT JOIN IS601_UserLeagues UL on UL.league_id = L.id WHERE UL.league_id is null LIMIT {limit} ")
+                if result_1.status and result_1.rows:
+                    team_list = result_1.rows
+                else:
+                    flash('No teams found')
             else:
-                flash('No teams found')
+                result_1 = DB.selectAll(f"SELECT T.name, COUNT(UT.user_id) as `count` FROM IS601_UserTeams UT JOIN IS601_Teams T on UT.team_id = T.id WHERE 1=1 {query1} LIMIT {limit} ")
+                if result_1.status and result_1.rows:
+                    team_list = result_1.rows
+                else:
+                    flash('No teams found')
         if type_of == '' or type_of == 'league':
-            result_2 = DB.selectAll(f"SELECT L.name, COUNT(UL.user_id) as `count` FROM IS601_UserLeagues UL JOIN IS601_Leagues L on UL.league_id = L.id WHERE 1=1 {query2} ")
-            if result_2.status and result_2.rows:
-                league_list = result_2.rows
+            if na:
+                result_2 = DB.selectAll(f"SELECT T.name, 0 as `count` FROM IS601_Teams T LEFT JOIN IS601_UserTeams UT on UT.team_id = T.id WHERE UT.team_id is null LIMIT {limit} ")
+                if result_2.status and result_2.rows:
+                    league_list = result_2.rows
+                else:
+                    flash('No leagues found')
             else:
-                flash('No leagues found')
+                result_2 = DB.selectAll(f"SELECT L.name, COUNT(UL.user_id) as `count` FROM IS601_UserLeagues UL JOIN IS601_Leagues L on UL.league_id = L.id WHERE 1=1 {query2} LIMIT {limit} ")
+                if result_2.status and result_2.rows:
+                    league_list = result_2.rows
+                else:
+                    flash('No leagues found')
     except Exception as e:
         print(e)
         flash("Error getting user data", "danger")
-    return render_template("association_list.html", team_list=team_list, league_list=league_list, type_of=type_of)
+    return render_template("association_list.html", team_list=team_list, league_list=league_list, type_of=type_of,allowed_columns = allowed_columns_tuples)
 

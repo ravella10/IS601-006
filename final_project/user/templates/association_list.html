@@ -1,3 +1,4 @@
+{% from "sort_filter.html" import sort_filter%}
 {% extends "layout.html" %}
 {% block title %}Watchlist{% endblock %}
 {% block content %}
@@ -16,6 +17,12 @@
                     <input type="text" name="league_name" class="form-control" id="fn" placeholder="League name"
                         value="{{request.args.get('league_name') or ''}}">
                     </div>
+                
+                    <div class="col-12" style="max-width: 10%;">
+                        <label class="form-label visually-hidden" for="league_name">Count</label>
+                        <input type="text" name="count_filter" class="form-control" id="fn" placeholder="Count"
+                            value="{{request.args.get('count_filter') or ''}}">
+                        </div>
 
                     <div class="col">
                         <label class="visually-hidden" for="leagues">Entity</label>
@@ -26,11 +33,22 @@
                         </select>
                     </div>
 
-        
+                    <div class="col-12" style="max-width: 10%;">
+                        <label class="form-label visually-hidden" for="limit">Limit</label>
+                        <input type="number" name="limit" class="form-control" id="limit" placeholder="Limit" min="0" max="100"
+                            value="{{request.args.get('limit') or 10}}">
+                    </div>
+
+                {{sort_filter(cols=allowed_columns)}}
+                    
                 <input type="hidden" id="postId" name="apply_where" value='' />
+                
+                <div class="col"><input type="submit" name="NA" class="btn btn-primary" value="Not Associated" ></div>    
+
+                
 
                 <div class="col">
-                    <input type="submit" class="btn btn-primary" value="Filter" />
+                    <input type="submit" class="btn btn-primary" value="Filter"  />
                 </div>
 
                 </div>

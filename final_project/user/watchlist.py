@@ -78,7 +78,9 @@ def register():
 #pr457 date - 04/25/2023
 @watchlist.route("/view", methods=["GET","POST"])
 def view():
-    result_list = ''
+    league_count = 0
+    team_count = 0
+    league_list = ''
     league_list = []
     team_list = []
     apply_where = request.args.get("apply_where",'')
@@ -121,6 +123,10 @@ def view():
                 )
                 if not result_1.rows and apply_where == '':
                     flash("Couldn't find any Watchlist records", "danger")
+                else:
+                    count_result = DB.selectAll("""SELECT count(*) as count FROM IS601_UserLeagues WHERE user_id=%s""",user_id)
+                    league_count = count_result.rows[0]['count']
+                    flash("League count is" + str(league_count))
                 league_list = result_1.rows
                 query = ''
                 if apply_where == 'team':
@@ -151,6 +157,10 @@ def view():
                 #pr457 date - 04/25/2023
                 if not result_2.rows and apply_where == 'team':
                     flash("Couldn't find any Watchlist records", "danger")
+                else:
+                    count_result = DB.selectAll("""SELECT count(*) as count FROM IS601_UserTeams WHERE user_id=%s""",user_id)
+                    team_count = count_result.rows[0]['count']
+                    flash("Team count is "+str(team_count))
             except Exception as e:
                 #pr457 date - 04/25/2023
                 flash(f" Following exception occured while Fetching the Watchlist record: {str(e)}", "danger")
@@ -160,13 +170,17 @@ def view():
 @watchlist.route("/delete", methods=["GET","POST"])
 def delete():
     country_name = request.args.get("country_name",None)
-    print(country_name)
     id = request.args.get("id",None)
+    clear = request.args.get("clear_button",None)
     user_id = json.loads(session['user'])['id']
     type_of = request.args.get("type",None)
-    apply_where = '' if type_of=='league' else type_of
+    if type_of is not None:
+        apply_where = '' if type_of=='league' else type_of
+    else:
+        apply_where = request.args.get('apply_where')
+        type_of = 'league' if apply_where=='' else 'team'
     try:
-        if type_of == 'league':
+        if type_of == 'league' and not clear:
             result = DB.selectAll("""
                 Select * FROM IS601_UserLeagues WHERE user_id = %s and league_id = %s
                 """,user_id, id)
@@ -174,7 +188,7 @@ def delete():
             if not result.rows:
                 flash("Invalid ID! Unable to Delete League from watchlist","danger")
                 return redirect(url_for("watchlist.view",apply_where=apply_where,did=id))
-        else:
+        elif not clear:
             result = DB.selectAll("""
                 Select * FROM IS601_UserTeams WHERE user_id = %s and team_id = %s
                 """, user_id, id )
@@ -186,23 +200,39 @@ def delete():
             flash('Duplicate record','danger')
         else:
             flash(f" Following exception occured while Modfiying the record from watchlist: {str(e)}", "danger")
-    
-    if not id:
+    print("league is")
+    print(type_of)
+    if not id and not clear:
         flash('Id is missing','danger')
         redirect(url_for("watchlist.view",apply_where=apply_where))
     else:
         if type_of == 'league':
             try:
-                result = DB.delete("DELETE FROM IS601_UserLeagues WHERE league_id = %s and user_id = %s", id, user_id)
-                if result.status:
-                    flash("Deleted League from watchlist","success")
+                if clear:
+                    print("this is user id"+str(user_id))
+                    result = DB.delete("DELETE FROM IS601_UserLeagues WHERE user_id = %s", user_id)
+                    if result.status:
+                        flash("Deleted All Leagues from watchlist","success")
+                    else:
+                        flash("No leagues to Delete from watchlist")
+                else:
+                    result = DB.delete("DELETE FROM IS601_UserLeagues WHERE league_id = %s and user_id = %s", id, user_id)
+                    if result.status:
+                        flash("Deleted League from watchlist","success")
             except Exception as e:
                     flash(f" Following exception occured while deleting the League from watchlist: {str(e)}", "danger")
         else:
              try:
-                result = DB.delete("DELETE FROM IS601_UserTeams WHERE team_id = %s and user_id = %s", id, user_id)
-                if result.status:
-                    flash("Deleted Team from watchlist","success")
+                if clear:
+                    result = DB.delete("DELETE FROM IS601_UserTeams WHERE user_id = %s", user_id)
+                    if result.status:
+                        flash("Deleted All Teams from watchlist","success")
+                    else:
+                        flash("No Teams to Delete from watchlist")
+                else:
+                    result = DB.delete("DELETE FROM IS601_UserTeams WHERE team_id = %s and user_id = %s", id, user_id)
+                    if result.status:
+                        flash("Deleted Team from watchlist","success")
              except Exception as e:
                     flash(f" Following exception occured while deleting the Team from watchlist: {str(e)}", "danger")
     return redirect(url_for("watchlist.view",apply_where=apply_where,country_name=country_name,did=id))

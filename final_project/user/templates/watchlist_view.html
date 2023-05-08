@@ -51,11 +51,19 @@ height: 100vh;">
                     <input type="text" name="country_name" class="form-control" id="ln" placeholder="Country"
                         value="{{request.args.get('country_name') or ''}}">
                 </div>
+
+                <div class="col" style="max-width: 5%;">
+                    <td><input type="submit" name="clear_button" class="btn btn-primary" value="clear" formaction="../watchlist/delete" />
+                </div>
+
                 <input type="hidden" id="postId" name="apply_where" value='' />
 
                 <div class="col">
                     <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
+
+               
+
                 </div>
     </form>
  
