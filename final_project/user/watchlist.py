@@ -95,10 +95,11 @@ def view():
     column = request.args.get("column",None)
     order = request.args.get("order",None)
     limit = request.args.get("limit", 10)
-    print(limit)
     allowed_columns = ['name','country']
     allowed_columns_tuples = [(c, c) for c in allowed_columns]
-    print(apply_where)
+    print("Below is league_id")
+    print(league_id)
+    
     if request.method == "GET" or request.method == "POST":
 
         user_id = json.loads(session['user'])['id']
@@ -109,7 +110,7 @@ def view():
             try:
                 query = ''
                 if apply_where == '':
-                    if league_name:
+                    if league_name: 
                         query+= f''' AND L.name like '%{league_name}%' '''
                     if country_name:
                         query+= f" AND L.country like '%{country_name}%' "
@@ -139,7 +140,7 @@ def view():
                     if country_name:
                         query+=f" AND L.country like '%{country_name}%'"
                     if league_id:
-                        query+=f" AND L.league_id = '%{league_id}%'"
+                        query+=f" AND L.league_id = {league_id}"
                     if column and order:
                         print(column, order)
                     if column in allowed_columns \
@@ -159,6 +160,7 @@ def view():
             """+query, {'id':user_id})
                 team_list = result_2.rows
                 #pr457 date - 04/25/2023
+                print(query)
                 if not result_2.rows and apply_where == 'team':
                     flash("Couldn't find any Watchlist records", "danger")
                 else:
@@ -168,6 +170,7 @@ def view():
             except Exception as e:
                 #pr457 date - 04/25/2023
                 flash(f" Following exception occured while Fetching the Watchlist record: {str(e)}", "danger")
+    print(apply_where)
     return render_template("watchlist_view.html",league_list = league_list, team_list = team_list, allowed_columns = allowed_columns_tuples,apply_where=apply_where)
 
 #pr457 date - 04/25/2023
